@@ -1,0 +1,20 @@
+{
+"name": "weleoka/user",
+"type": "library",
+"description": "Users interface using MySQL for Anax-MVC",
+"keywords": ["comment", "education", "wrapper"],
+"homepage": "https://github.com/weleoka/user",
+"license": "MIT",
+"authors": [
+{
+"name": "Kai Weeks",
+"email": "kai.weeks@eeee.se",
+"role": "Developer"
+}
+],
+"require": {
+},
+"autoload": {
+"psr-4": { "Weleoka\\": "src/" }
+}
+} 
