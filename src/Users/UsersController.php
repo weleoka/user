@@ -27,20 +27,22 @@ class UsersController implements \Anax\DI\IInjectionAware
  *
  * @return void
  */
-	public function loginAction() {
+	public function loginAction($destination = null) {
         $this->theme->setTitle("Logga in");
+        if ($this->users->isAuthenticated()) {
+        			$destination = '/toLogin';
+					$this->users->AddFeedback('<i class="fa fa-square-o"></i> Du är redan inloggad. <a href="' . $this->url->create('') . '/users/logout' . $destination . '"> Logga ut</a> för att fortsätta.');        
+        } else {
         $form = $this->getLoginForm();
         $status = $form->check();
-        // echo "dumping acronym in commentscontroller:\n";
-        // dump ($form->Value('usernameoremail'));
-        // echo "dumping password in commentscontroller:\n";
-        // dump ($form->Value('password'));  
         if ($status === true) {
 				$this->users->AddFeedback('Du är nu inloggad.');
-        	   $url = $this->url->create('');
+				$url = $this->url->create('');
+				if ($destination == 'toForum') {
+					$url .= '/forum';
+					$this->response->redirect($url);
+				}		
         	   $this->response->redirect($url);
-//   		header('Location: ' . $this->url->create('users/login'));
-//				header("Location: " . $this->url->create(''));
         } else if ( $status === false ){
         	   $this->users->AddFeedback('Fel användarnamn eller lösenord.');
         	   $url = $this->url->create('users/login');
@@ -54,10 +56,12 @@ class UsersController implements \Anax\DI\IInjectionAware
             // 'use_fieldset'    => true,   // Wrap form fields within <fieldset>
             // 'legend'          => isset($this->form['legend']) ? $this->form['legend'] : null,   // Use legend for fieldset
             // 'wrap_at_element' => false,  // Wraps column in equal size or at the set number of elements
-        ]; 
+        ];
+        
         $this->views->add('users/login',[
-           'content' => $form->getHTML($formOptions),
+           'content' => $form->getHTML($formOptions) . '<i class="fa fa-square-o"></i><a href="' . $this->url->create('') . '/users/add"> Skapa</a> ny användare.',
         ], 'main');
+      }
    }
    
 /**
@@ -69,10 +73,11 @@ class UsersController implements \Anax\DI\IInjectionAware
  */
    protected function getLoginForm() { 	
         $di = $this;
+
         $form = $this->form->create([], [
-            'usernameORemail' => [
+            'acronym' => [
                 'type'        => 'text',
-                'label'       => 'Användarnamn eller e-post',
+                'label'       => 'Användarnamn',
                 'required'    => true,
                 'maxlength'   => 255,
                 'validation'  => array(
@@ -91,7 +96,7 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'value'     => 'Logga in',
                 'type'      => 'submit',
                 'callback'  => function ($form) use ($di) {
-                    if( $di->users->loginUser($form->Value('usernameORemail'), $form->Value('password'))) {
+                    if( $di->users->loginUser($form->Value('acronym'), $form->Value('password'))) {
                     		$this->users->AddFeedback('Du är nu inloggad.');
                         return true;
                     } else {
@@ -107,10 +112,13 @@ class UsersController implements \Anax\DI\IInjectionAware
  * logout
  *
  */
-	public function logoutAction(){
+	public function logoutAction($destination = null) {
 		$this->session->un_set('user');
+		$url = $this->url->create('');
+		if ($destination == 'toLogin') {
+			$url .= '/users/login';
+		}		
 		$this->users->AddFeedback('Du är nu utloggad.');
-      $url = $this->url->create('');
       $this->response->redirect($url);
 	}
 /**
@@ -153,9 +161,9 @@ class UsersController implements \Anax\DI\IInjectionAware
 			'title' 		 => "Lista över alla användare",
 		], 'main');
 
-    $this->views->add('me/page', [
-        'content' => $this->sidebarGen(),
-       ],'sidebar');
+      $this->views->add('me/page', [
+         'content' => $this->sidebarGen(),
+      ],'sidebar');
 	}
  
     /**
@@ -166,33 +174,33 @@ class UsersController implements \Anax\DI\IInjectionAware
 	public function addAction()
 	{
 				$form = $this->form;
-
 				$form = $form->create([], [
 					'acronym' => [
 						'type'        => 'text',
-						'label'       => 'Acronym',
+						'label'       => 'Användarnamn: ',
 						'required'    => true,
-						'placeholder' => 'Acronym',
+						'placeholder' => 'Användarnamn',
 						'validation'  => ['not_empty'],
 					],
 					'password' => [
 						'type'        => 'password',
-						'label'       => 'Password',
+						'label'       => 'Lösenord: ',
 						'required'    => true,
-						'placeholder' => 'password',
+						'placeholder' => 'Lösenord',
 						'validation'  => ['not_empty'],
 					],
 					'name' => [
 						'type'        => 'text',
-						'label'       => 'Name:',
+						'label'       => 'Ditt namn: ',
 						'required'    => true,
-						'placeholder' => 'Name',
+						'placeholder' => 'Namn',
 						'validation'  => ['not_empty'],
 					],
 					'email' => [
 						'type'        => 'text',
+						'label'		  => 'Email address: ',
 						'required'    => true,
-						'placeholder' => 'email address',
+						'placeholder' => 'Email',
 						'validation'  => ['not_empty', 'email_adress'],
 					],
 					'submit' => [
@@ -203,9 +211,9 @@ class UsersController implements \Anax\DI\IInjectionAware
              
 						$this->users->save([
                         'acronym'   => $form->Value('acronym'),
-                        'email'     => $form->Value('email'),
-                        'name'      => $form->Value('name'),
                         'password'  => crypt($form->Value('password')),
+                        'name'      => $form->Value('name'),
+                        'email'     => $form->Value('email'),
                         'created'   => $now,
                         'active'    => $now,
 						]);
@@ -222,12 +230,12 @@ class UsersController implements \Anax\DI\IInjectionAware
 			if ($status === true) {
          // What to do if the form was submitted?
 				$this->users->AddFeedback('Den nya användaren är nu i användarlistan.');
-         	$url = $this->url->create('users/list');
+         	$url = $this->url->create('');
 			   $this->response->redirect($url);	         	
 				
 			} else if ($status === false) {
       	// What to do when form could not be processed?
-				$this->users->AddFeedback('Den nya användaren las inte till i DB.');
+				$this->users->AddFeedback('Den nya användaren kunde inte skapas.');
 				$url = $this->url->create('users/add');
 			   $this->response->redirect($url);	 
 			}
