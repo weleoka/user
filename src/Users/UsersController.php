@@ -34,22 +34,20 @@ class UsersController implements \Anax\DI\IInjectionAware
         // echo "dumping acronym in commentscontroller:\n";
         // dump ($form->Value('usernameoremail'));
         // echo "dumping password in commentscontroller:\n";
-        // dump ($form->Value('password'));
-      
-
-		  $feedback = "";
-		  
+        // dump ($form->Value('password'));  
         if ($status === true) {
-				$feedback = "Du är nu inloggad.";
-				$_SESSION['user'] = $user;
-   		echo"-----------------";
-				header("Location: " . $this->url->create(''));
+				$this->users->AddFeedback('Du är nu inloggad.');
+        	   $url = $this->url->create('');
+        	   $this->response->redirect($url);
+//   		header('Location: ' . $this->url->create('users/login'));
+//				header("Location: " . $this->url->create(''));
         } else if ( $status === false ){
-        	   $feedback = "Fel användarnamn eller lösenord.";
-            header('Location: ' . $this->url->create('users/login'));
+        	   $this->users->AddFeedback('Fel användarnamn eller lösenord.');
+        	   $url = $this->url->create('users/login');
+        	   $this->response->redirect($url);
+//            header('Location: ' . $this->url->create('users/login'));
         }
   		  $formOptions = [
-  		  			'id'					=> 'small',
             // 'start'           => false,  // Only return the start of the form element
             // 'columns' 	      => 1,      // Layout all elements in two columns
             // 'use_buttonbar'   => true,   // Layout consequtive buttons as one element wrapped in <p>
@@ -59,8 +57,7 @@ class UsersController implements \Anax\DI\IInjectionAware
         ]; 
         $this->views->add('users/login',[
            'content' => $form->getHTML($formOptions),
-			  'feedback' 	 => $feedback,
-        ], 'featured-3');
+        ], 'main');
    }
    
 /**
@@ -95,10 +92,10 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'type'      => 'submit',
                 'callback'  => function ($form) use ($di) {
                     if( $di->users->loginUser($form->Value('usernameORemail'), $form->Value('password'))) {
-                    		$form->AddOutput('Du är nu inloggad.');
+                    		$this->users->AddFeedback('Du är nu inloggad.');
                         return true;
                     } else {
-                    		$form->AddOutput('Felaktigt användarnamn eller lösenord.');
+                    		$this->users->AddFeedback('Felaktigt användarnamn eller lösenord.');
                     		return false;
                  	  }
                 }
@@ -106,7 +103,16 @@ class UsersController implements \Anax\DI\IInjectionAware
         ]);
         return $form;
    } 
-    
+/*
+ * logout
+ *
+ */
+	public function logoutAction(){
+		$this->session->un_set('user');
+		$this->users->AddFeedback('Du är nu utloggad.');
+      $url = $this->url->create('');
+      $this->response->redirect($url);
+	}
 /**
  * List user with id.
  *
@@ -120,14 +126,14 @@ class UsersController implements \Anax\DI\IInjectionAware
  
 			$this->theme->setTitle("Se specifik användare");
 			
-         $this->views->add('kmom03/page1', [
+         $this->views->add('me/page', [
 	    		'content' => $this->sidebarGen(),
        		],'sidebar');	
     
 			$this->views->add('users/list-one', [
 				'user' => $one,
 				'title' => 'Visar information för: ',
-			]);
+			], 'main');
 	}
 	
 /**
@@ -135,7 +141,7 @@ class UsersController implements \Anax\DI\IInjectionAware
 	*
 	* @return void
 	*/
-	public function listAction($feedback = null)
+	public function listAction()
 	{
 		$all = $this->users->findAll();
 
@@ -144,11 +150,10 @@ class UsersController implements \Anax\DI\IInjectionAware
      
 		$this->views->add('users/list-all', [
 			'users'		 => $all,
-			'feedback' 	 => $feedback,
 			'title' 		 => "Lista över alla användare",
-		]);
+		], 'main');
 
-    $this->views->add('kmom03/page1', [
+    $this->views->add('me/page', [
         'content' => $this->sidebarGen(),
        ],'sidebar');
 	}
@@ -216,13 +221,13 @@ class UsersController implements \Anax\DI\IInjectionAware
 
 			if ($status === true) {
          // What to do if the form was submitted?
-				$form->AddOutput("Den nya användaren är nu i användarlistan.");
+				$this->users->AddFeedback('Den nya användaren är nu i användarlistan.');
          	$url = $this->url->create('users/list');
 			   $this->response->redirect($url);	         	
 				
 			} else if ($status === false) {
       	// What to do when form could not be processed?
-				$form->AddOutput("Den nya användaren las inte till i DB.");
+				$this->users->AddFeedback('Den nya användaren las inte till i DB.');
 				$url = $this->url->create('users/add');
 			   $this->response->redirect($url);	 
 			}
@@ -305,12 +310,12 @@ class UsersController implements \Anax\DI\IInjectionAware
         $status = $form->check();
 
         if ($status === true) {
-        	 $form->AddOutput("Användaren har uppdaterats.");
-        	 $url = $this->url->create('users/id/' . $user->id);
-			 $this->response->redirect($url);				
+        	 	$this->users->AddFeedback('Användaren har uppdaterats.');
+        	 	$url = $this->url->create('users/id/' . $user->id);
+			 	$this->response->redirect($url);				
         
         } else if ($status === false) {
-				$form->AddOutput("Användaren uppdaterades inte.");
+				$this->users->AddFeedback('Användaren uppdaterades inte.');
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
         }
@@ -353,9 +358,9 @@ public function deleteAction($id = null)
  	 
     $res = $this->users->delete($id);
  	 
- 	 $feedback = $user->acronym . " är nu permanent borttagen.";
+ 	 $this->users->AddFeedback($user->acronym . ' är nu permanent borttagen.');
 	 
-	 $this->listAction($feedback);   		
+	 $this->listAction();   		
 }
 
 /**
@@ -379,15 +384,15 @@ public function softDeleteAction($id = null)
 				$user->deleted = $now;
 				$user->active = null;
         		$user->save();
-        		$feedback = $user->acronym . " är nu i papperskorgen.";
-      		$this->listAction($feedback);        		
+        		$this->users->AddFeedback($user->acronym . ' är nu i papperskorgen.');
+      		$this->listAction();        		
      		        		
      	  } else {
 				$user->deleted = null;
 				$user->active = $now;
 				$user->save();
-				$feedback = $user->acronym . " är nu aterställd.";
- 				$this->listAction($feedback);   
+				$this->users->AddFeedback($user->acronym . ' är nu aterställd.');
+ 				$this->listAction();   
      	  }
 }
 
@@ -410,14 +415,15 @@ public function softDeleteAction($id = null)
      	  if (!isset($user->active)) {
 				$user->active = $now;
         		$user->save();
-        		$feedback = $user->acronym . " är nu aktiverad.";
- 				$this->listAction($feedback);        		        		
-     	  } else {
+        		$this->users->AddFeedback($user->acronym . ' är nu aktiverad.');
+        		$this->listAction(); 
+ 		  } else {
 				$user->active = null;
 				$user->save();
-				$feedback = $user->acronym . " är nu avaktiverad.";
- 				$this->listAction($feedback);        	  }
-    	  }
+				$this->users->AddFeedback($user->acronym . ' är nu avaktiverad.');
+ 				$this->listAction(); 
+ 		  }
+   }
 
 /**
  * List all active and not deleted users.

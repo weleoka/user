@@ -5,7 +5,13 @@
  	public function __construct($db) {
  		$this->db=$db;
  	}
-
+		} if (isset($feedback)) {
+				echo "<h5>" . $feedback . "</h5>";
+			//	unset($feedback);
+		}  if (isset($_SESSION['user-feedback'])) {
+        		$output = $_SESSION['user-feedback'];
+				echo "<h5>" . $output . "</h5>";        		
+        		unset($_SESSION['user-feedback']);
 /*
  * login
  *
