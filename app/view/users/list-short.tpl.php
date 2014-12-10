@@ -21,7 +21,6 @@
 	Namn: <?=$user->name?><br>
 	Status: <?=$status?>	
 </p>
-
 <p>
 <a href='<?=$this->url->create('users/delete/' . $user->id)?>'>Radera</a>&nbsp&nbsp&nbsp
 <a href='<?=$this->url->create('users/update/' . $user->id)?>'>Uppdatera</a>&nbsp&nbsp&nbsp

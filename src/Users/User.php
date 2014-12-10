@@ -1,6 +1,6 @@
 <?php
 namespace Weleoka\Users;
- 
+
 /**
  * Model for Users.
  *
@@ -24,33 +24,41 @@ class User extends \Weleoka\Users\UsersdbModel {
         }
         return $this;
     }
+
+
+
 /**
  * Find and return user by acronym.
  *
  * @return user
  */
-	public function findByName( $acronym ) {
-		echo "searching user: '" . $acronym . "'....";     
+	public function findByName( $acronym )
+	{
+		echo "searching user: '" . $acronym . "'....";
       $this->db->select()->from($this->getSource())->where('acronym = ?');
       $this->db->execute([$acronym]);
       $user = $this->db->fetchInto($this);
-      
-      return $user; 
-    }
+
+      return $user;
+   }
+
+
+
 /*
  * Login user if password correct.
  *
  */
-   public function loginUser ($acronym, $password) {
+   public function loginUser ($acronym, $password)
+   {
 		$user = $this->findByName($acronym);
-   	
+
    	if ($user->password === crypt($password, $user->password)) {
 
    		$_SESSION['user']['id'] = $user->id;
 			$_SESSION['user']['acronym'] = $user->acronym;
 			$_SESSION['user']['name'] = $user->name;
 			$_SESSION['user']['email'] = $user->acronym;
-				
+
 
       	return true;
    	 } else {
@@ -59,24 +67,30 @@ class User extends \Weleoka\Users\UsersdbModel {
    	 }
    }
 
+
+
 /*
  * Check if user is logged in.
  *
  */
-	public function isAuthenticated() {
+	public function isAuthenticated()
+	{
 		if(isset($_SESSION['user'])){
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
+
+
 /*
  * Check if user is logged in and return string acronym.
  *
  * @return acronym
  */
-	public function whoIsAuthenticated() {
+	public function whoIsAuthenticated()
+	{
 		$acronym = isset($_SESSION['user']) ? $_SESSION['user']['name'] : null;
 
 /*		$user = new \stdClass();
@@ -94,19 +108,53 @@ class User extends \Weleoka\Users\UsersdbModel {
 
 
 /*
+ * List any forum questions of user.
+ *
+ * @return array 
+ */
+	public function findUserQuestions($id) 
+	{
+		$this->db->select()
+             	->from('Question')
+             	->where('userID = "' . $id . '"');
+      $this->db->execute($this->db->getSQL());
+    	$this->db->setFetchModeClass(__CLASS__);	
+    	$userQuestions = $this->db->fetchAll();
+    	return object_to_array($userQuestions);
+	}
+	
+/*
+ * List any forum answers of user.
+ *
+ * @return array 
+ */
+	public function findUserAnswers($id) 
+	{
+		$this->db->select()
+             	->from('Answer')
+             	->where('userID = "' . $id . '"');
+      $this->db->execute($this->db->getSQL());
+    	$this->db->setFetchModeClass(__CLASS__);
+		$userAnswers = $this->db->fetchAll();
+    	return object_to_array($userAnswers);
+	}
+
+
+
+/*
  * Check if user is admin.
  *
  * @return acronym
  */
-	public function isAdmin() {
-		
+	public function isAdmin()
+	{
 		$user = $this->whoIsAuthenticated();
 		if (isset($user) && $user == 'Administrator') {return true;}
-/*		
+/*
 		if (is_object($user) && $user->name == 'Administratior' && $user->acronym == 'Admin') {
 			return true;
 		} else {
-			return false		
+			return false
 		}
 */
 	}
