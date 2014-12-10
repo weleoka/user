@@ -2,14 +2,7 @@
 		if (isset($title)) {
 				echo "<h4>" . $title . "</h4>";
 			//	unset($title);
-		} if (isset($feedback)) {
-				echo "<h5>" . $feedback . "</h5>";
-			//	unset($feedback);
-		}  if (isset($_SESSION['form-output'])) {
-        		$output = $_SESSION['form-output'];
-				echo "<h5>" . $output . "</h5>";        		
-        		unset($_SESSION['form-output']);
-      } 
+		}
 ?>
 
 <?php foreach ($users as $user) : ?>
@@ -21,7 +14,6 @@
 	Namn: <?=$user->name?><br>
 	Status: <?=$status?>	
 </p>
-
 <p>
 <a href='<?=$this->url->create('users/delete/' . $user->id)?>'>Radera</a>&nbsp&nbsp&nbsp
 <a href='<?=$this->url->create('users/update/' . $user->id)?>'>Uppdatera</a>&nbsp&nbsp&nbsp

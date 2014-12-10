@@ -43,9 +43,15 @@ class User extends \Weleoka\Users\UsersdbModel {
  */
    public function loginUser ($acronym, $password) {
 		$user = $this->findByName($acronym);
-   	 
+   	
    	if ($user->password === crypt($password, $user->password)) {
-   		$this->session->set('user', $user->name);
+
+   		$_SESSION['user']['id'] = $user->id;
+			$_SESSION['user']['acronym'] = $user->acronym;
+			$_SESSION['user']['name'] = $user->name;
+			$_SESSION['user']['email'] = $user->acronym;
+				
+
       	return true;
    	 } else {
    	   $this->session->un_set('user');
@@ -66,13 +72,42 @@ class User extends \Weleoka\Users\UsersdbModel {
 	}
 	
 /*
- * Check if user is logged in and return Acronym.
+ * Check if user is logged in and return string acronym.
  *
  * @return acronym
  */
-	public function statusIsAuthenticated() {
-		$acronym = isset($_SESSION['user']) ? $_SESSION['user']->acronym : null;
+	public function whoIsAuthenticated() {
+		$acronym = isset($_SESSION['user']) ? $_SESSION['user']['name'] : null;
 
+/*		$user = new \stdClass();
+		if (isset($_SESSION['user'])) {
+			foreach ($_SESSION['user'] as $item => $value)
+			{
+				$user->$item = $value;
+			}
+      	return $user;
+      } else { return null; }
+      */
       return $acronym;
+	}
+
+
+
+/*
+ * Check if user is admin.
+ *
+ * @return acronym
+ */
+	public function isAdmin() {
+		
+		$user = $this->whoIsAuthenticated();
+		if (isset($user) && $user == 'Administrator') {return true;}
+/*		
+		if (is_object($user) && $user->name == 'Administratior' && $user->acronym == 'Admin') {
+			return true;
+		} else {
+			return false		
+		}
+*/
 	}
 }

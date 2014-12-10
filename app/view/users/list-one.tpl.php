@@ -2,16 +2,8 @@
 		if (isset($title)) {
 				echo "<h4>" . $title . "</h4>";
 			//	unset($title);
-		} if (isset($feedback)) {
-				echo "<h5>" . $feedback . "</h5>";
-			//	unset($feedback);
-		}  if (isset($_SESSION['form-output'])) {
-        		$output = $_SESSION['form-output'];
-				echo "<h5>" . $output . "</h5>";        		
-        		unset($_SESSION['form-output']);
-      } 
+		}
 ?>
-
 <?php if($user->active === null) {$status = 'Inaktiv';} else {$status = 'Aktiv';} ?>
 <?php if(isset($user->deleted)) {$status = $status . ' och i papperskorgen';} else { }?>
 <p>
@@ -21,6 +13,8 @@
 	Status: <?=$status?>, 
 	Skapad: <?=$user->created?>
 </p>
+
+
 
 <p>
 <a href='<?=$this->url->create('users/delete/' . $user->id)?>'>Radera</a>&nbsp&nbsp&nbsp
