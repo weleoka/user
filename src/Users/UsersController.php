@@ -138,26 +138,42 @@ class UsersController implements \Anax\DI\IInjectionAware
          $this->views->add('me/page', [
 	    		'content' => $this->sidebarGen(),
        		],'sidebar');
-       		
+
 			$one = $this->users->find($id);
 			$this->views->add('users/list-one', [
 				'user' => $one,
 				'title' => 'Visar information för: ',
 			], 'main');
-			
+
 			$userQuestions = $this->users->findUserQuestions($id);
 			$userAnswers = $this->users->findUserAnswers($id);
-			
+
 			if (isset($userQuestions)) {
-			$this->views->add('comments/commentsqs', [
-				'questions' => $userQuestions,
-				'title' => 'Visar användarens frågor: ',
-			], 'main');
-			} if (isset($userAnswers)) {						
-			$this->views->add('comments/commentsqs', [
-				'questions' => $userAnswers,
-				'title' => 'Visar användarens svar på frågor: ',
-			], 'main');
+				if (count($userQuestions > 1)) {
+					$this->views->add('comments/questions', [
+						'questions' => $userQuestions,
+						'title' => 'Visar användarens frågor: ',
+					], 'main');
+				} else {
+					$this->views->add('comments/question', [
+						'question' => $userQuestions,
+						'title' => 'Visar användarens frågor: ',
+					], 'main');
+				}
+			}
+
+			if (isset($userAnswers)) {
+				if (count($userAnswers > 1)) {					
+					$this->views->add('comments/answers', [
+						'answers' => $userAnswers,
+						'title' => 'Visar användarens svar på frågor: ',
+					], 'main');
+				} else {
+					$this->views->add('comments/answer', [
+						'answer' => $userAnswers,
+						'title' => 'Visar användarens svar på frågor: ',
+					], 'main');				
+				}
 			}
 	}
 

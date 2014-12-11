@@ -59,7 +59,6 @@ class User extends \Weleoka\Users\UsersdbModel {
 			$_SESSION['user']['name'] = $user->name;
 			$_SESSION['user']['email'] = $user->acronym;
 
-
       	return true;
    	 } else {
    	   $this->session->un_set('user');
@@ -91,7 +90,7 @@ class User extends \Weleoka\Users\UsersdbModel {
  */
 	public function whoIsAuthenticated()
 	{
-		$acronym = isset($_SESSION['user']) ? $_SESSION['user']['name'] : null;
+		$name = isset($_SESSION['user']) ? $_SESSION['user']['name'] : null;
 
 /*		$user = new \stdClass();
 		if (isset($_SESSION['user'])) {
@@ -102,7 +101,7 @@ class User extends \Weleoka\Users\UsersdbModel {
       	return $user;
       } else { return null; }
       */
-      return $acronym;
+      return $name;
 	}
 
 
@@ -116,12 +115,14 @@ class User extends \Weleoka\Users\UsersdbModel {
 	{
 		$this->db->select()
              	->from('Question')
-             	->where('userID = "' . $id . '"');
-      $this->db->execute($this->db->getSQL());
+             	->where('userID = ?');
+      $this->db->execute($this->db->getSQL(), [$id]);
     	$this->db->setFetchModeClass(__CLASS__);	
     	$userQuestions = $this->db->fetchAll();
     	return object_to_array($userQuestions);
 	}
+
+
 	
 /*
  * List any forum answers of user.
@@ -132,8 +133,8 @@ class User extends \Weleoka\Users\UsersdbModel {
 	{
 		$this->db->select()
              	->from('Answer')
-             	->where('userID = "' . $id . '"');
-      $this->db->execute($this->db->getSQL());
+             	->where('userID = ?');
+      $this->db->execute($this->db->getSQL(), [$id]);
     	$this->db->setFetchModeClass(__CLASS__);
 		$userAnswers = $this->db->fetchAll();
     	return object_to_array($userAnswers);
