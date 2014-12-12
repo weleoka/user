@@ -45,7 +45,7 @@ public function delete($id)
 	}
 
 /**
- * Find and return specific.
+ * Find and return specific user by ID.
  *
  * @return this
  */

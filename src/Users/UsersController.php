@@ -20,6 +20,9 @@ class UsersController implements \Anax\DI\IInjectionAware
         $this->users = new \Weleoka\Users\User();
         $this->users->setDI($this->di);
    }
+   
+   
+   
 /**
  * Login for user.
  *
@@ -47,22 +50,15 @@ class UsersController implements \Anax\DI\IInjectionAware
         	   $this->users->AddFeedback('Fel användarnamn eller lösenord.');
         	   $url = $this->url->create('users/login');
         	   $this->response->redirect($url);
-//            header('Location: ' . $this->url->create('users/login'));
         }
-  		  $formOptions = [
-            // 'start'           => false,  // Only return the start of the form element
-            // 'columns' 	      => 1,      // Layout all elements in two columns
-            // 'use_buttonbar'   => true,   // Layout consequtive buttons as one element wrapped in <p>
-            // 'use_fieldset'    => true,   // Wrap form fields within <fieldset>
-            // 'legend'          => isset($this->form['legend']) ? $this->form['legend'] : null,   // Use legend for fieldset
-            // 'wrap_at_element' => false,  // Wraps column in equal size or at the set number of elements
-        ];
 
         $this->views->add('users/login',[
-           'content' => $form->getHTML($formOptions) . '<i class="fa fa-square-o"></i><a href="' . $this->url->create('') . '/users/add"> Skapa</a> ny användare.',
+           'content' => $form->getHTML() . '<i class="fa fa-square-o"></i><a href="' . $this->url->create('') . '/users/add"> Skapa</a> ny användare.',
         ], 'main');
       }
    }
+
+
 
 /**
  * Generate user loginform.
@@ -72,7 +68,7 @@ class UsersController implements \Anax\DI\IInjectionAware
  * @return form
  */
    protected function getLoginForm() {
-        $di = $this;
+       // $di = $this;
 
         $form = $this->form->create([], [
             'acronym' => [
@@ -95,9 +91,11 @@ class UsersController implements \Anax\DI\IInjectionAware
             'submit' => [
                 'value'     => 'Logga in',
                 'type'      => 'submit',
-                'callback'  => function ($form) use ($di) {
-                    if( $di->users->loginUser($form->Value('acronym'), $form->Value('password'))) {
-                    		$this->users->AddFeedback('Du är nu inloggad.');
+                'class'		 => 'bigButton',
+                'callback'  => function ($form) {		//use ($di) {
+           
+                    if( $this->users->loginUser( $form->Value( 'acronym' ), $form->Value( 'password' ) ) ) {
+                    		$this->users->AddFeedback( 'Du är nu inloggad.' );
                         return true;
                     } else {
                     		$this->users->AddFeedback('Felaktigt användarnamn eller lösenord.');
@@ -108,12 +106,17 @@ class UsersController implements \Anax\DI\IInjectionAware
         ]);
         return $form;
    }
+   
+   
+   
 /*
- * logout
+ * logout Action.
  *
  */
 	public function logoutAction($destination = null) {
-		$this->session->un_set('user');
+		// $this->session->un_set('user');
+		session_destroy();
+		
 		$url = $this->url->create('');
 		if ($destination == 'toLogin') {
 			$url .= '/users/login';
@@ -140,9 +143,11 @@ class UsersController implements \Anax\DI\IInjectionAware
        		],'sidebar');
 
 			$one = $this->users->find($id);
+			$admin = $this->users->isAdmin() ? 1 : null;
 			$this->views->add('users/list-one', [
 				'user' => $one,
 				'title' => 'Visar information för: ',
+				'admin' => $admin,
 			], 'main');
 
 			$userQuestions = $this->users->findUserQuestions($id);
@@ -165,13 +170,15 @@ class UsersController implements \Anax\DI\IInjectionAware
 			if (isset($userAnswers)) {
 				if (count($userAnswers > 1)) {					
 					$this->views->add('comments/answers', [
-						'answers' => $userAnswers,
-						'title' => 'Visar användarens svar på frågor: ',
+						'answers' 	=> $userAnswers,
+						'title' 		=> 'Visar användarens svar på frågor: ',
+						'cleanView' => true,
 					], 'main');
 				} else {
 					$this->views->add('comments/answer', [
-						'answer' => $userAnswers,
-						'title' => 'Visar användarens svar på frågor: ',
+						'answer' 	=> $userAnswers,
+						'title' 		=> 'Visar användarens svar på frågor: ',
+						'cleanView' => true,
 					], 'main');				
 				}
 			}
@@ -190,16 +197,20 @@ class UsersController implements \Anax\DI\IInjectionAware
 
 		//Here starts the rendering phase of the list action
 		$this->theme->setTitle("Alla användare");
-
+		
+		$admin = $this->users->isAdmin() ? 1 : null;
 		$this->views->add('users/list-all', [
 			'users'		 => $all,
-			'title' 		 => "Lista över alla användare",
+			'title' 		 => 'Lista över alla användare',
+			'admin'		 => $admin,
 		], 'main');
 
       $this->views->add('me/page', [
          'content' => $this->sidebarGen(),
       ],'sidebar');
 	}
+
+
 
     /**
      * Add new user.
@@ -242,15 +253,13 @@ class UsersController implements \Anax\DI\IInjectionAware
 						'type'      => 'submit',
 						'callback'  => function($form) {
 
-						$now = gmdate('Y-m-d H:i:s');
-
 						$this->users->save([
                         'acronym'   => $form->Value('acronym'),
                         'password'  => crypt($form->Value('password')),
                         'name'      => $form->Value('name'),
                         'email'     => $form->Value('email'),
                         'created'   => $now,
-                        'active'    => $now,
+                        'active'    => getTime(),
 						]);
 
 						return true;
@@ -282,20 +291,13 @@ class UsersController implements \Anax\DI\IInjectionAware
 	    		'content' => $this->sidebarGen(),
        		],'sidebar');
 
-			$formOptions = [
-            // 'start'           => false,  // Only return the start of the form element
-            // 'columns' 	      => 1,      // Layout all elements in two columns
-            // 'use_buttonbar'   => true,   // Layout consequtive buttons as one element wrapped in <p>
-            // 'use_fieldset'    => true,   // Wrap form fields within <fieldset>
-            // 'legend'          => isset($this->form['legend']) ? $this->form['legend'] : null,   // Use legend for fieldset
-            // 'wrap_at_element' => false,  // Wraps column in equal size or at the set number of elements
-        	];
-
 			$this->views->add('users/add', [
-				'content' =>$form->getHTML($formOptions),
+				'content' =>$form->getHTML(),
 				'title' => '<h2>Skapa en ny användare</h2>',
 			]);
 	}
+
+
 
     /**
      * Edit user.
@@ -333,19 +335,17 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'type'      => 'submit',
                 'callback'  => function($form) use ($user) {
 
-           	$now = gmdate('Y-m-d H:i:s');
+            	 		$this->users->save([
+                 			'id'        => $user->id,
+                 			'acronym'   => $form->Value('acronym'),
+                 			'email'     => $form->Value('email'),
+                 			'name'      => $form->Value('name'),
+                 			'updated'   => getTime(),
+                 			'active'    => getTime(),
+                		]);
 
-            $this->users->save([
-                 'id'        => $user->id,
-                 'acronym'   => $form->Value('acronym'),
-                 'email'     => $form->Value('email'),
-                 'name'      => $form->Value('name'),
-                 'updated'   => $now,
-                 'active'    => $now,
-                    ]);
-
-            return true;
-            }
+            	 		return true;
+            	}
             ],
         ]);
 
@@ -359,8 +359,8 @@ class UsersController implements \Anax\DI\IInjectionAware
 
         } else if ($status === false) {
 				$this->users->AddFeedback('Användaren uppdaterades inte.');
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit;
+				$url = $this->url->create('users/edit/' . $id);
+			 	$this->response->redirect($url);
         }
 
 			//Here starts the rendering phase of the update action
@@ -370,20 +370,13 @@ class UsersController implements \Anax\DI\IInjectionAware
 	    		'content' => $this->sidebarGen(),
        		],'sidebar');
 
-			$formOptions = [
-            // 'start'           => false,  // Only return the start of the form element
-            // 'columns' 	         => 1,      // Layout all elements in two columns
-            // 'use_buttonbar'   => true,   // Layout consequtive buttons as one element wrapped in <p>
-            // 'use_fieldset'    => true,   // Wrap form fields within <fieldset>
-            // 'legend'          => isset($this->form['legend']) ? $this->form['legend'] : null,   // Use legend for fieldset
-            // 'wrap_at_element' => false,  // Wraps column in equal size or at the set number of elements
-        	];
-
 			$this->views->add('users/edit', [
-				'content' =>$form->getHTML($formOptions),
+				'content' =>$form->getHTML(),
 				'title' => '<h2>Uppdatera en användare</h2>',
 			]);
 }
+
+
 
 /**
  * Delete user permanently.
@@ -405,6 +398,8 @@ public function deleteAction($id = null)
 
 	 $this->listAction();
 }
+
+
 
 /**
  * Delete (soft) and restore user.
@@ -439,6 +434,8 @@ public function softDeleteAction($id = null)
      	  }
 }
 
+
+
     /**
      * Make user active/inactive.
      *
@@ -468,6 +465,8 @@ public function softDeleteAction($id = null)
  		  }
    }
 
+
+
 /**
  * List all active and not deleted users.
  *
@@ -481,7 +480,7 @@ public function activeAction()
         ->execute();
 
     $this->theme->setTitle("Aktiva användare");
-    $this->views->add('users/list-short', [
+    $this->views->add('users/list-all', [
         'users' => $all,
         'title' => "Lista över aktiva användare",
     ]);
@@ -489,6 +488,8 @@ public function activeAction()
 	    'content' => $this->sidebarGen(),
        ],'sidebar');
 }
+
+
 
 /**
  * List all inactive and not deleted users.
@@ -503,7 +504,7 @@ public function inactiveAction()
         ->execute();
 
     $this->theme->setTitle("Inaktiva användare");
-    $this->views->add('users/list-short', [
+    $this->views->add('users/list-all', [
         'users' => $all,
         'title' => "Lista över inaktiva användare",
     ],'main');
@@ -512,6 +513,8 @@ public function inactiveAction()
 	    'content' => $this->sidebarGen(),
        ],'sidebar');
 }
+
+
 
 /**
  * List all soft deleted users.
@@ -525,7 +528,7 @@ public function deletedAction()
         ->execute();
 
     $this->theme->setTitle("Papperskorgen");
-    $this->views->add('users/list-short', [
+    $this->views->add('users/list-all', [
         'users' => $all,
         'title' => "Lista över papperskorgen",
     ]);
@@ -533,6 +536,9 @@ public function deletedAction()
 	    'content' => $this->sidebarGen(),
        ],'sidebar');
 }
+
+
+
  /**
  * Generate sidebar content.
  *
@@ -541,14 +547,17 @@ public function deletedAction()
  * @return sidebar
  */
 	public function sidebarGen()
-	{
+	{	
 	  $url = $this->url->create('');
-     $sidebar = '<p><i class="fa fa-refresh"></i><a href="' . $url . '/setup"> Nolställ DB</a></p
-                 <p><i class="fa fa-plus">    </i> <a href="' . $url . '/users/add"> Ny Användare</a></p>
-                 <p><i class="fa fa-check-square-o"></i><a href="' . $url . '/users/active"> Aktiva användare</a></p>
-                 <p><i class="fa fa-square-o"></i><a href="' . $url . '/users/inactive"> Inaktiva användare</a></p>
-                 <p><i class="fa fa-trash-o"></i><a href="' . $url . '/users/deleted"> Papperskorgen</a></p>
-                 <p><i class="fa fa-list-ol"></i><a href="' . $url . '/users/list"> Alla</a></p>';
-	  return $sidebar;
+	  if ($this->users->isAdmin()) {
+     		$sidebar = '<p><i class="fa fa-refresh"></i><a href="' . $url . '/setup"> Nolställ DB</a></p
+                 		<p><i class="fa fa-plus">    </i> <a href="' . $url . '/users/add"> Ny Användare</a></p>
+                 		<p><i class="fa fa-check-square-o"></i><a href="' . $url . '/users/active"> Aktiva användare</a></p>
+                 		<p><i class="fa fa-square-o"></i><a href="' . $url . '/users/inactive"> Inaktiva användare</a></p>
+                 		<p><i class="fa fa-trash-o"></i><a href="' . $url . '/users/deleted"> Papperskorgen</a></p>
+                 		<p><i class="fa fa-list-ol"></i><a href="' . $url . '/users/list"> Alla</a></p>';
+			return $sidebar;     
+     }
+	  return '<i class="fa fa-square-o"></i><a href="' . $url . '/users/login"> Logga in</a> Admin<br>för att hantera användare.';
 	}
 }
