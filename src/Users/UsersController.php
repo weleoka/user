@@ -39,6 +39,8 @@ class UsersController implements \Anax\DI\IInjectionAware
         $form = $this->getLoginForm();
         $status = $form->check();
         if ($status === true) {
+				// Restart session timeout timer.
+ 				$this->users->sessionTimeoutRestart();
 				$this->users->AddFeedback('Du är nu inloggad.');
 				$url = $this->url->create('');
 				if ($destination == 'toForum') {
@@ -168,19 +170,13 @@ class UsersController implements \Anax\DI\IInjectionAware
 			}
 
 			if (isset($userAnswers)) {
-				if (count($userAnswers > 1)) {					
+				if (count($userAnswers >= 1)) {					
 					$this->views->add('comments/answers', [
 						'answers' 	=> $userAnswers,
 						'title' 		=> 'Visar användarens svar på frågor: ',
 						'cleanView' => true,
 					], 'main');
-				} else {
-					$this->views->add('comments/answer', [
-						'answer' 	=> $userAnswers,
-						'title' 		=> 'Visar användarens svar på frågor: ',
-						'cleanView' => true,
-					], 'main');				
-				}
+				} 
 			}
 	}
 

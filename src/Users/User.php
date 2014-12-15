@@ -8,27 +8,28 @@ namespace Weleoka\Users;
 class User extends \Weleoka\Users\UsersdbModel {
 
 
-    /**
-     * Add output to display to the user what happened whith the form.
-     *
-     * @param string $str the string to add as output.
-     *
-     * @return $this CForm.
-     */
+/**
+ * Add output to display to the user what happened.
+ *
+ * @param string $str the string to add as output.
+ *
+ * @return void.
+ */
     public function AddFeedback($str)
     {
         if (isset($str)) {
-            $_SESSION['user-feedback'] =  $str;
+            $_SESSION['user-feedback'] = $str;
         } else {
             $_SESSION['user-feedback'] = null;
         }
-        return $this;
     }
 
 
 
 /**
  * Find and return user by acronym.
+ *
+ * @param string $acronym name to search for.
  *
  * @return user
  */
@@ -49,6 +50,9 @@ class User extends \Weleoka\Users\UsersdbModel {
 /*
  * Login user if password correct.
  *
+ * @param string $acronym, string $password.
+ *
+ * @return boolean
  */
    public function loginUser ($acronym, $password)
    {
@@ -61,13 +65,20 @@ class User extends \Weleoka\Users\UsersdbModel {
 													'acronym' 	=> $currentUser->acronym,
 													'name' 		=> $currentUser->name,
 													'email' 		=> $currentUser->email,
-												 ]); 
+												 ]);
+												 
+			
+	
+
       	return true;
    	 } else {
    	  session_unset();
 			return false;
    	 }
    }
+
+
+
 
 
 
@@ -94,13 +105,15 @@ class User extends \Weleoka\Users\UsersdbModel {
 	public function isAdmin()
 	{
 		$acronym = $this->whoIsAuthenticated();
-
+		$this->sessionTimeout();		
+		
 		if (isset($acronym) && $acronym == 'admin') {
 			return true;
 		} else {
 			return false;
 		}
 	}
+
 
 
 /*
@@ -110,12 +123,13 @@ class User extends \Weleoka\Users\UsersdbModel {
  */
 	public function whoIsAuthenticated()
 	{
-		$name = isset($_SESSION['user']['acronym']) ? $_SESSION['user']['acronym'] : null;
-      return $name;
+		$acronym = isset($_SESSION['user']['acronym']) ? $_SESSION['user']['acronym'] : null;
+      return $acronym;
 	}
 
 
 
+/************************************** FIND FORUM CONTENT BY USER ************************************/
 /*
  * List any forum questions of user.
  *
@@ -148,6 +162,41 @@ class User extends \Weleoka\Users\UsersdbModel {
     	$this->db->setFetchModeClass(__CLASS__);
 		$userAnswers = $this->db->fetchAll();
     	return object_to_array($userAnswers);
+	}
+
+
+
+/************************************** TTL TIMEOUT FUNCTIONS *****************************************/
+/*
+ * Restart session TTL timeout.
+ * Default TTL is 600 seconds.
+ *
+ * @return void
+ */  
+	public function sessionTimeoutRestart () 
+	{
+			$_SESSION['timeout']['startPoint'] = time();
+			$_SESSION['timeout']['TTL'] = 600;	
+	}   
+
+
+
+/*
+ * Set session timeout to $_SESSION, check status of TTL.
+ *
+ * @return acronym
+ */
+	public function sessionTimeout()
+	{
+			// check to see if $_SESSION["timeout"] is set
+		if (isset($_SESSION["timeout"])) {
+    		// calculate the session's "time to live"
+  			$currentTTL = time() - $_SESSION['timeout']['startPoint'];
+  			if ($currentTTL > $_SESSION['timeout']['TTL']) {
+     			session_unset();
+     			$this->AddFeedback('Your current session has timed out. Please login again.');
+  			}
+		} 
 	}
 
 }
