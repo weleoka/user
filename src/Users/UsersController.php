@@ -189,12 +189,14 @@ class UsersController implements \Anax\DI\IInjectionAware
 	public function listAction()
 	{
 		$all = $this->users->findAll();
+		
 
 		//Here starts the rendering phase of the list action
 		$this->theme->setTitle("Alla användare");
 		
 		$admin = $this->users->isAdmin() ? 1 : null;
 		$this->views->add('users/list-all', [
+			'content'	 => '',
 			'users'		 => $all,
 			'title' 		 => 'Lista över alla användare',
 			'admin'		 => $admin,

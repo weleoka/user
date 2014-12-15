@@ -11,7 +11,7 @@
 <div>
    <img style="float: left" src="http://www.gravatar.com/avatar/<?=md5($user->email);?>.jpg?s=60">
 	&nbsp&nbspID# <?=$user->id?>: <a href='<?=$this->url->create('users/id/' . $user->id)?>'><?=$user->acronym?></a> ( <?=$status?> )<br>
-	&nbsp&nbspEmail: <?=$user->email?><br>
+	<?php if (isset($admin)) : ?>&nbsp&nbspEmail: <?=$user->email?><br><?php endif; ?>
 	&nbsp&nbspNamn: <?=$user->name?><br>
 	Skapad: <?=$user->created?>
 
@@ -22,9 +22,7 @@
 		<a href='<?=$this->url->create('users/softDelete/' . $user->id)?>'>Ta bort/Aterställ</a>&nbsp&nbsp&nbsp
 		<a href='<?=$this->url->create('users/changeStatus/' . $user->id)?>'>Inaktivera/Aktivera</a></p>
 	<hr>
-<?php endif; ?>	
-	
-
+	<?php endif; ?>	
 </div>
 
 
