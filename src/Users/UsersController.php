@@ -116,8 +116,7 @@ class UsersController implements \Anax\DI\IInjectionAware
  *
  */
 	public function logoutAction($destination = null) {
-		// $this->session->un_set('user');
-		session_destroy();
+		session_unset();
 		
 		$url = $this->url->create('');
 		if ($destination == 'toLogin') {

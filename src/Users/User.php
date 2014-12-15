@@ -66,19 +66,12 @@ class User extends \Weleoka\Users\UsersdbModel {
 													'name' 		=> $currentUser->name,
 													'email' 		=> $currentUser->email,
 												 ]);
-												 
-			
-	
-
       	return true;
    	 } else {
    	  session_unset();
 			return false;
    	 }
    }
-
-
-
 
 
 
