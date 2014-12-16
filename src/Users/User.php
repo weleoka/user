@@ -25,7 +25,6 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-
 /**
  * Find and return user by acronym.
  *
@@ -65,6 +64,7 @@ class User extends \Weleoka\Users\UsersdbModel {
 													'acronym' 	=> $currentUser->acronym,
 													'name' 		=> $currentUser->name,
 													'email' 		=> $currentUser->email,
+													'contributionCount' => $currentUser->contributionCount,
 												 ]);
       	return true;
    	 } else {
@@ -168,8 +168,8 @@ class User extends \Weleoka\Users\UsersdbModel {
  */  
 	public function sessionTimeoutRestart () 
 	{
-			$_SESSION['timeout']['startPoint'] = time();
-			$_SESSION['timeout']['TTL'] = 600;	
+		$_SESSION['timeout']['startPoint'] = time();
+		$_SESSION['timeout']['TTL'] = 600;	
 	}   
 
 
