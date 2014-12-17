@@ -16,12 +16,37 @@ class UsersController implements \Anax\DI\IInjectionAware
      */
 
 
-	public function initialize() {
+	public function initialize() 
+	{
         $this->users = new \Weleoka\Users\User();
         $this->users->setDI($this->di);
    }
-   
-   
+ 
+ 
+ 
+ /**
+ * This fixes navbar depending on loginstatus and isAdmin.
+ *
+ * @param
+ *
+ * @return string
+ */  
+   public function navBarTweak()
+   {
+        $users = new \Weleoka\Users\User();
+        $users->setDI($this->di);
+        
+        if ($users->isAdmin()) {
+				return 'admin';        
+        } else if ($users->isAuthenticated()) {
+				return 'user';        
+        } else {
+				return null;        
+        }
+   }
+ 
+ 
+ 
    
 /**
  * Login for user.
@@ -30,7 +55,8 @@ class UsersController implements \Anax\DI\IInjectionAware
  *
  * @return void
  */
-	public function loginAction($destination = null) {
+	public function loginAction($destination = null) 
+	{
         $this->theme->setTitle("Logga in");
         if ($this->users->isAuthenticated()) {
         			$destination = '/toLogin';

@@ -187,7 +187,7 @@ class User extends \Weleoka\Users\UsersdbModel {
   			$currentTTL = time() - $_SESSION['timeout']['startPoint'];
   			if ($currentTTL > $_SESSION['timeout']['TTL']) {
      			session_unset();
-     			$this->AddFeedback('Your current session has timed out. Please login again.');
+     			$this->AddFeedback('Du har varit inaktiv i 10 minuter och numera utloggad.');
   			}
 		} 
 	}
