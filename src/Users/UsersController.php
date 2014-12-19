@@ -72,8 +72,9 @@ class UsersController implements \Anax\DI\IInjectionAware
 				if ($destination == 'toForum') {
 					$url .= '/forum';
 					$this->response->redirect($url);
-				}
-        	   $this->response->redirect($url);
+				} else if (is_numeric($destination))
+					$url .= '/forumdb/id/' . $destination;
+        	   	$this->response->redirect($url);
         } else if ( $status === false ){
         	   $this->users->AddFeedback('Fel användarnamn eller lösenord.');
         	   $url = $this->url->create('users/login');
@@ -216,7 +217,6 @@ class UsersController implements \Anax\DI\IInjectionAware
 	{
 		$all = $this->users->findAll();
 		
-
 		//Here starts the rendering phase of the list action
 		$this->theme->setTitle("Alla användare");
 		

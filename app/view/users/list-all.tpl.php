@@ -34,8 +34,8 @@
 						ID# <?=$user->id?>:
 						<a href='<?=$this->url->create('users/id/' . $user->id)?>'><?=$user->acronym?></a> ( <?=$status?> )<br>
 						<?php if (isset($admin)) : ?>Email: <?=$user->email?><br><?php endif; ?>
-						Namn: <?=$user->name?><br>
-						Skapad: <?=$user->created?>
+						Namn: <?=$user->name?>, författare av: <?=$user->contributionCount?> foruminlägg.<br>
+						Användaren skapades: <?=$user->created?>
 					</div>
 					<p class="commentContent">
 					</p>
