@@ -131,7 +131,7 @@ class User extends \Weleoka\Users\UsersdbModel {
 	public function findUserQuestions($id) 
 	{
 		$this->db->select()
-             	->from('Question')
+             	->from('question')
              	->where('userID = ?');
       $this->db->execute($this->db->getSQL(), [$id]);
     	$this->db->setFetchModeClass(__CLASS__);	
@@ -149,7 +149,7 @@ class User extends \Weleoka\Users\UsersdbModel {
 	public function findUserAnswers($id) 
 	{
 		$this->db->select()
-             	->from('Answer')
+             	->from('answer')
              	->where('userID = ?');
       $this->db->execute($this->db->getSQL(), [$id]);
     	$this->db->setFetchModeClass(__CLASS__);
