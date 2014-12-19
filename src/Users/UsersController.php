@@ -182,12 +182,12 @@ class UsersController implements \Anax\DI\IInjectionAware
 
 			if (isset($userQuestions)) {
 				if (count($userQuestions > 1)) {
-					$this->views->add('comments/questions', [
+					$this->views->add('forumView/questions', [
 						'questions' => $userQuestions,
 						'title' => 'Visar användarens frågor: ',
 					], 'main');
 				} else {
-					$this->views->add('comments/question', [
+					$this->views->add('forumView/question', [
 						'question' => $userQuestions,
 						'title' => 'Visar användarens frågor: ',
 					], 'main');
@@ -196,7 +196,7 @@ class UsersController implements \Anax\DI\IInjectionAware
 
 			if (isset($userAnswers)) {
 				if (count($userAnswers >= 1)) {					
-					$this->views->add('comments/answers', [
+					$this->views->add('forumView/answers', [
 						'answers' 	=> $userAnswers,
 						'title' 		=> 'Visar användarens svar på frågor: ',
 						'cleanView' => true,
