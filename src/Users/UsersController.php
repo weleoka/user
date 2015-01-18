@@ -16,38 +16,41 @@ class UsersController implements \Anax\DI\IInjectionAware
      */
 
 
-	public function initialize() 
+	public function initialize()
 	{
         $this->users = new \Weleoka\Users\User();
         $this->users->setDI($this->di);
    }
- 
- 
- 
+
+
+
  /**
  * This fixes navbar depending on loginstatus and isAdmin.
  *
  * @param
  *
  * @return string
- */  
+ */
    public function navBarTweak()
    {
         $users = new \Weleoka\Users\User();
         $users->setDI($this->di);
-        
+
         if ($users->isAdmin()) {
-				return 'admin';        
+				return 'admin';
         } else if ($users->isAuthenticated()) {
-				return 'user';        
+				return 'user';
         } else {
-				return null;        
+				return null;
         }
    }
- 
- 
- 
-   
+
+
+	public function getTime()
+	{
+		return date('Y-m-d H:i:s');	
+	}
+
 /**
  * Login for user.
  *
@@ -55,7 +58,7 @@ class UsersController implements \Anax\DI\IInjectionAware
  *
  * @return void
  */
-	public function loginAction($destination = null) 
+	public function loginAction($destination = null)
 	{
         $this->theme->setTitle("Logga in");
         if ($this->users->isAuthenticated()) {
@@ -122,7 +125,7 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'type'      => 'submit',
                 'class'		 => 'bigButton',
                 'callback'  => function ($form) {		//use ($di) {
-           
+
                     if( $this->users->loginUser( $form->Value( 'acronym' ), $form->Value( 'password' ) ) ) {
                     		$this->users->AddFeedback( 'Du är nu inloggad.' );
                         return true;
@@ -135,16 +138,16 @@ class UsersController implements \Anax\DI\IInjectionAware
         ]);
         return $form;
    }
-   
-   
-   
+
+
+
 /*
  * logout Action.
  *
  */
 	public function logoutAction($destination = null) {
 		session_unset();
-		
+
 		$url = $this->url->create('');
 		if ($destination == 'toLogin') {
 			$url .= '/users/login';
@@ -196,13 +199,13 @@ class UsersController implements \Anax\DI\IInjectionAware
 			}
 
 			if (isset($userAnswers)) {
-				if (count($userAnswers >= 1)) {					
+				if (count($userAnswers >= 1)) {
 					$this->views->add('forumView/answers', [
 						'answers' 	=> $userAnswers,
 						'title' 		=> 'Visar användarens svar på frågor: ',
 						'cleanView' => true,
 					], 'main');
-				} 
+				}
 			}
 	}
 
@@ -216,10 +219,10 @@ class UsersController implements \Anax\DI\IInjectionAware
 	public function listAction()
 	{
 		$all = $this->users->findAll();
-		
+
 		//Here starts the rendering phase of the list action
 		$this->theme->setTitle("Alla användare");
-		
+
 		$admin = $this->users->isAdmin() ? 1 : null;
 		$this->views->add('users/list-all', [
 			'content'	 => '',
@@ -281,7 +284,7 @@ class UsersController implements \Anax\DI\IInjectionAware
                         'password'  => crypt($form->Value('password')),
                         'name'      => $form->Value('name'),
                         'email'     => $form->Value('email'),
-                        'created'   => $now,
+                        'created'   => getTime(),
                         'active'    => getTime(),
 						]);
 
@@ -437,12 +440,12 @@ public function softDeleteAction($id = null)
         die("Missing id");
     }
 
-    $now = gmdate('Y-m-d H:i:s');
+    // $now = gmdate('Y-m-d H:i:s');
 
     $user = $this->users->find($id);
 
         if (!isset($user->deleted)) {
-				$user->deleted = $now;
+				$user->deleted = getTime();
 				$user->active = null;
         		$user->save();
         		$this->users->AddFeedback($user->acronym . ' är nu i papperskorgen.');
@@ -450,7 +453,7 @@ public function softDeleteAction($id = null)
 
      	  } else {
 				$user->deleted = null;
-				$user->active = $now;
+				$user->active = getTime();
 				$user->save();
 				$this->users->AddFeedback($user->acronym . ' är nu aterställd.');
  				$this->listAction();
@@ -471,12 +474,12 @@ public function softDeleteAction($id = null)
             die("Missing id");
         }
 
-        $now = gmdate('Y-m-d H:i:s');
+        //$now = gmdate('Y-m-d H:i:s');
 
         $user = $this->users->find($id);
 
      	  if (!isset($user->active)) {
-				$user->active = $now;
+				$user->active = getTime();
         		$user->save();
         		$this->users->AddFeedback($user->acronym . ' är nu aktiverad.');
         		$this->listAction();
@@ -570,7 +573,7 @@ public function deletedAction()
  * @return sidebar
  */
 	public function sidebarGen()
-	{	
+	{
 	  $url = $this->url->create('');
 	  if ($this->users->isAdmin()) {
      		$sidebar = '<p><i class="fa fa-refresh"></i><a href="' . $url . '/setup"> Nolställ DB</a></p
@@ -579,7 +582,7 @@ public function deletedAction()
                  		<p><i class="fa fa-square-o"></i><a href="' . $url . '/users/inactive"> Inaktiva användare</a></p>
                  		<p><i class="fa fa-trash-o"></i><a href="' . $url . '/users/deleted"> Papperskorgen</a></p>
                  		<p><i class="fa fa-list-ol"></i><a href="' . $url . '/users/list"> Alla</a></p>';
-			return $sidebar;     
+			return $sidebar;
      }
 	  return '<i class="fa fa-square-o"></i><a href="' . $url . '/users/login"> Logga in</a> Admin<br>för att hantera användare.';
 	}
