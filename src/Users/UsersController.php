@@ -337,6 +337,13 @@ class UsersController implements \Anax\DI\IInjectionAware
         $form = $this->form;
         $user = $this->users->find($id);
         $form = $form->create([], [
+				'password' => [
+					'type'        => 'password',
+					'label'       => 'Nuvarande eller nytt lösenord: ',
+					'required'    => true,
+					'placeholder' => 'Lösenord',
+					'validation'  => ['not_empty'],
+					],            
             'name' => [
                 'type'        => 'text',
                 'label'       => 'Name:',
@@ -357,6 +364,7 @@ class UsersController implements \Anax\DI\IInjectionAware
             	 		$this->users->save([
                  			'id'        => $user->id,
                  			'acronym'   => $user->acronym,
+                 			'password'  => $form->Value('password'),
                  			'email'     => $form->Value('email'),
                  			'name'      => $form->Value('name'),
                  			'updated'   => getTime(),
