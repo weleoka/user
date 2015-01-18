@@ -337,13 +337,6 @@ class UsersController implements \Anax\DI\IInjectionAware
         $form = $this->form;
         $user = $this->users->find($id);
         $form = $form->create([], [
-            'acronym' => [
-                'type'        => 'text',
-                'label'       => 'Acronym',
-                'required'    => true,
-                'validation'  => ['not_empty'],
-                'value' => $user->acronym,
-            ],
             'name' => [
                 'type'        => 'text',
                 'label'       => 'Name:',
@@ -363,7 +356,7 @@ class UsersController implements \Anax\DI\IInjectionAware
 
             	 		$this->users->save([
                  			'id'        => $user->id,
-                 			'acronym'   => $form->Value('acronym'),
+                 			'acronym'   => $user->acronym,
                  			'email'     => $form->Value('email'),
                  			'name'      => $form->Value('name'),
                  			'updated'   => getTime(),
