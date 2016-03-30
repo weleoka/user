@@ -26,6 +26,8 @@ Setup for Anax-MVC
 History
 -----------------------------------
 
+2016-03-30
+	Code clean-up.
 
 v2.0 (latest)
 v1.0

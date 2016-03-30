@@ -19,6 +19,7 @@ class User extends \Weleoka\Users\UsersdbModel {
     {
         if (isset($str)) {
             $_SESSION['user-feedback'] = $str;
+
         } else {
             $_SESSION['user-feedback'] = null;
         }
@@ -32,12 +33,12 @@ class User extends \Weleoka\Users\UsersdbModel {
  *
  * @return user
  */
-	public function findByName( $acronym )
-	{
-		// echo "searching user: '" . $acronym . "'....";
+    public function findByName( $acronym )
+    {
+      // echo "searching user: '" . $acronym . "'....";
       $this->db->select()
-      			->from($this->getSource())
-      			->where('acronym = ?');
+                  ->from($this->getSource())
+                  ->where('acronym = ?');
       $this->db->execute([$acronym]);
       $user = $this->db->fetchInto($this);
 
@@ -53,24 +54,27 @@ class User extends \Weleoka\Users\UsersdbModel {
  *
  * @return boolean
  */
-   public function loginUser ($acronym, $password)
-   {
-		$currentUser = $this->findByName($acronym);
+      public function loginUser ($acronym, $password)
+       {
+           $currentUser = $this->findByName($acronym);
 
-   	if ($currentUser->password === crypt($password, $currentUser->password)) {
+           if ($currentUser->password === crypt($password, $currentUser->password)) {
 
-   		$this->session->set('user', [
-   												'id' 			=> $currentUser->id,
-													'acronym' 	=> $currentUser->acronym,
-													'name' 		=> $currentUser->name,
-													'email' 		=> $currentUser->email,
-													'contributionCount' => $currentUser->contributionCount,
-												 ]);
-      	return true;
-   	 } else {
-   	  session_unset();
-			return false;
-   	 }
+               $this->session->set('user', [
+               'id'             => $currentUser->id,
+               'acronym'     => $currentUser->acronym,
+               'name'         => $currentUser->name,
+               'email'         => $currentUser->email,
+               'contributionCount' => $currentUser->contributionCount,
+             ]);
+
+            return true;
+
+        } else {
+            session_unset();
+
+            return false;
+        }
    }
 
 
@@ -79,14 +83,18 @@ class User extends \Weleoka\Users\UsersdbModel {
  * Check if user is logged in.
  *
  */
-	public function isAuthenticated()
-	{
-		if(isset($_SESSION['user'])){
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public function isAuthenticated()
+    {
+
+        if(isset($_SESSION['user'])){
+
+            return true;
+
+        } else {
+
+            return false;
+        }
+    }
 
 
 
@@ -95,17 +103,20 @@ class User extends \Weleoka\Users\UsersdbModel {
  *
  * @return acronym
  */
-	public function isAdmin()
-	{
-		$acronym = $this->whoIsAuthenticated();
-		$this->sessionTimeout();		
-		
-		if (isset($acronym) && $acronym == 'admin') {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public function isAdmin()
+    {
+        $acronym = $this->whoIsAuthenticated();
+        $this->sessionTimeout();
+
+        if (isset($acronym) && $acronym == 'admin') {
+
+            return true;
+
+        } else {
+
+            return false;
+        }
+    }
 
 
 
@@ -114,11 +125,12 @@ class User extends \Weleoka\Users\UsersdbModel {
  *
  * @return acronym
  */
-	public function whoIsAuthenticated()
-	{
-		$acronym = isset($_SESSION['user']['acronym']) ? $_SESSION['user']['acronym'] : null;
-      return $acronym;
-	}
+    public function whoIsAuthenticated()
+    {
+        $acronym = isset($_SESSION['user']['acronym']) ? $_SESSION['user']['acronym'] : null;
+
+          return $acronym;
+    }
 
 
 
@@ -126,36 +138,38 @@ class User extends \Weleoka\Users\UsersdbModel {
 /*
  * List any forum questions of user.
  *
- * @return array 
+ * @return array
  */
-	public function findUserQuestions($id) 
-	{
-		$this->db->select()
-             	->from('question')
-             	->where('userID = ?');
-      $this->db->execute($this->db->getSQL(), [$id]);
-    	$this->db->setFetchModeClass(__CLASS__);	
-    	$userQuestions = $this->db->fetchAll();
-    	return object_to_array($userQuestions);
-	}
+    public function findUserQuestions($id)
+    {
+        $this->db->select()
+                 ->from('question')
+                 ->where('userID = ?');
+          $this->db->execute($this->db->getSQL(), [$id]);
+        $this->db->setFetchModeClass(__CLASS__);
+        $userQuestions = $this->db->fetchAll();
+
+        return object_to_array($userQuestions);
+    }
 
 
-	
+
 /*
  * List any forum answers of user.
  *
- * @return array 
+ * @return array
  */
-	public function findUserAnswers($id) 
-	{
-		$this->db->select()
-             	->from('answer')
-             	->where('userID = ?');
-      $this->db->execute($this->db->getSQL(), [$id]);
-    	$this->db->setFetchModeClass(__CLASS__);
-		$userAnswers = $this->db->fetchAll();
-    	return object_to_array($userAnswers);
-	}
+    public function findUserAnswers($id)
+    {
+        $this->db->select()
+                 ->from('answer')
+                 ->where('userID = ?');
+          $this->db->execute($this->db->getSQL(), [$id]);
+        $this->db->setFetchModeClass(__CLASS__);
+        $userAnswers = $this->db->fetchAll();
+
+        return object_to_array($userAnswers);
+    }
 
 
 
@@ -165,12 +179,12 @@ class User extends \Weleoka\Users\UsersdbModel {
  * Default TTL is 600 seconds.
  *
  * @return void
- */  
-	public function sessionTimeoutRestart () 
-	{
-		$_SESSION['timeout']['startPoint'] = time();
-		$_SESSION['timeout']['TTL'] = 600;	
-	}   
+ */
+    public function sessionTimeoutRestart ()
+    {
+        $_SESSION['timeout']['startPoint'] = time();
+        $_SESSION['timeout']['TTL'] = 600;
+    }
 
 
 
@@ -179,18 +193,19 @@ class User extends \Weleoka\Users\UsersdbModel {
  *
  * @return acronym
  */
-	public function sessionTimeout()
-	{
-			// check to see if $_SESSION["timeout"] is set
-		if (isset($_SESSION["timeout"])) {
-    		// calculate the session's "time to live"
-  			$currentTTL = time() - $_SESSION['timeout']['startPoint'];
-  			if ($currentTTL > $_SESSION['timeout']['TTL']) {
-     			session_unset();
-     			$this->AddFeedback('Du har varit inaktiv i 10 minuter och numera utloggad.');
-  			}
-		} 
-	}
+    public function sessionTimeout()
+    {
+        // check to see if $_SESSION["timeout"] is set
+        if (isset($_SESSION["timeout"])) {
+            // calculate the session's "time to live"
+            $currentTTL = time() - $_SESSION['timeout']['startPoint'];
+
+            if ($currentTTL > $_SESSION['timeout']['TTL']) {
+                session_unset();
+                $this->AddFeedback('Du har varit inaktiv i 10 minuter och numera utloggad.');
+            }
+        }
+    }
 
 }
 
