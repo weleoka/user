@@ -8,13 +8,13 @@ namespace Weleoka\Users;
 class User extends \Weleoka\Users\UsersdbModel {
 
 
-/**
- * Add output to display to the user what happened.
- *
- * @param string $str the string to add as output.
- *
- * @return void.
- */
+    /**
+     * Add output to display to the user what happened.
+     *
+     * @param string $str the string to add as output.
+     *
+     * @return void.
+     */
     public function AddFeedback($str)
     {
         if (isset($str)) {
@@ -26,63 +26,60 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-/**
- * Find and return user by acronym.
- *
- * @param string $acronym name to search for.
- *
- * @return user
- */
+    /**
+     * Find and return user by acronym.
+     *
+     * @param string $acronym name to search for.
+     *
+     * @return user
+     */
     public function findByName( $acronym )
     {
-      // echo "searching user: '" . $acronym . "'....";
-      $this->db->select()
-                  ->from($this->getSource())
-                  ->where('acronym = ?');
-      $this->db->execute([$acronym]);
-      $user = $this->db->fetchInto($this);
+        // echo "searching user: '" . $acronym . "'....";
+        $this->db->select()
+                 ->from($this->getSource())
+                 ->where('acronym = ?');
+        $this->db->execute([$acronym]);
+        $user = $this->db->fetchInto($this);
 
-      return $user;
-   }
+        return $user;
+    }
 
 
+    /*
+     * Login user if password correct.
+     *
+     * @param string $acronym, string $password.
+     *
+     * @return boolean
+     */
+    public function loginUser ($acronym, $password)
+    {
+        $currentUser = $this->findByName($acronym);
 
-/*
- * Login user if password correct.
- *
- * @param string $acronym, string $password.
- *
- * @return boolean
- */
-      public function loginUser ($acronym, $password)
-       {
-           $currentUser = $this->findByName($acronym);
+        if ($currentUser->password === crypt($password, $currentUser->password)) {
+            $this->session->set('user', [
+                'id'        => $currentUser->id,
+                'acronym'   => $currentUser->acronym,
+                'name'      => $currentUser->name,
+                'email'     => $currentUser->email,
+                'contributionCount' => $currentUser->contributionCount,
+            ]);
 
-           if ($currentUser->password === crypt($password, $currentUser->password)) {
-
-               $this->session->set('user', [
-               'id'             => $currentUser->id,
-               'acronym'     => $currentUser->acronym,
-               'name'         => $currentUser->name,
-               'email'         => $currentUser->email,
-               'contributionCount' => $currentUser->contributionCount,
-             ]);
-
-            return true;
+        return true;
 
         } else {
             session_unset();
 
             return false;
         }
-   }
+    }
 
 
-
-/*
- * Check if user is logged in.
- *
- */
+    /*
+     * Check if user is logged in.
+     *
+     */
     public function isAuthenticated()
     {
 
@@ -97,12 +94,11 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-
-/*
- * Check if user is admin.
- *
- * @return acronym
- */
+    /*
+     * Check if user is admin.
+     *
+     * @return acronym
+     */
     public function isAdmin()
     {
         $acronym = $this->whoIsAuthenticated();
@@ -119,27 +115,26 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-
-/*
- * Check if user is logged in and return string acronym.
- *
- * @return acronym
- */
+    /*
+     * Check if user is logged in and return string acronym.
+     *
+     * @return acronym
+     */
     public function whoIsAuthenticated()
     {
         $acronym = isset($_SESSION['user']['acronym']) ? $_SESSION['user']['acronym'] : null;
 
-          return $acronym;
+        return $acronym;
     }
 
 
 
 /************************************** FIND FORUM CONTENT BY USER ************************************/
-/*
- * List any forum questions of user.
- *
- * @return array
- */
+    /*
+     * List any forum questions of user.
+     *
+     * @return array
+     */
     public function findUserQuestions($id)
     {
         $this->db->select()
@@ -153,18 +148,17 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-
-/*
- * List any forum answers of user.
- *
- * @return array
- */
+    /*
+     * List any forum answers of user.
+     *
+     * @return array
+     */
     public function findUserAnswers($id)
     {
         $this->db->select()
                  ->from('answer')
                  ->where('userID = ?');
-          $this->db->execute($this->db->getSQL(), [$id]);
+        $this->db->execute($this->db->getSQL(), [$id]);
         $this->db->setFetchModeClass(__CLASS__);
         $userAnswers = $this->db->fetchAll();
 
@@ -174,12 +168,12 @@ class User extends \Weleoka\Users\UsersdbModel {
 
 
 /************************************** TTL TIMEOUT FUNCTIONS *****************************************/
-/*
- * Restart session TTL timeout.
- * Default TTL is 600 seconds.
- *
- * @return void
- */
+    /*
+     * Restart session TTL timeout.
+     * Default TTL is 600 seconds.
+     *
+     * @return void
+     */
     public function sessionTimeoutRestart ()
     {
         $_SESSION['timeout']['startPoint'] = time();
@@ -187,12 +181,11 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-
-/*
- * Set session timeout to $_SESSION, check status of TTL.
- *
- * @return acronym
- */
+    /*
+     * Set session timeout to $_SESSION, check status of TTL.
+     *
+     * @return acronym
+     */
     public function sessionTimeout()
     {
         // check to see if $_SESSION["timeout"] is set

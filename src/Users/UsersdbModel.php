@@ -7,7 +7,9 @@ namespace Weleoka\Users;
  */
 class UsersdbModel implements \Anax\DI\IInjectionAware
 {
+
     use \Anax\DI\TInjectable;
+
 
     /**
      * Save current object/row.
@@ -23,10 +25,13 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
 
         if (isset($values['id'])) {
             return $this->update($values);
+
         } else {
+
             return $this->create($values);
         }
     }
+
 
     /**
      * Delete row.
@@ -45,6 +50,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         return $this->db->execute([$id]);
     }
 
+
     /**
      * Find and return specific user by ID.
      *
@@ -53,7 +59,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
     public function find($id)
     {
 
-        if (isset($id)){
+        if (isset($id)) {
             $this->db->select()
                  ->from($this->getSource())
                  ->where("id = ?");
@@ -61,17 +67,18 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
 
             return $this->db->fetchInto($this);
 
-         } else {
+        } else {
             echo "No user found, sorry";
-    //         $id = $this->db->lastInsertId();
-    //        $this->db->select()
-    //             ->from($this->getSource())
-    //             ->where("id = ?");
+    //      $id = $this->db->lastInsertId();
+    //      $this->db->select()
+    //          ->from($this->getSource())
+    //          ->where("id = ?");
     //      echo $id;
-    //        $this->db->execute([$id]);
-    //        return $this->db->fetchInto($this);
-         }
+    //      $this->db->execute([$id]);
+    //      return $this->db->fetchInto($this);
+        }
     }
+
 
     /**
      * Find and return all.
@@ -89,6 +96,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         return $this->db->fetchAll();
    }
 
+
     /**
      * Build a select-query.
      *
@@ -104,6 +112,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         return $this;
     }
 
+
     /**
      * Build the where part.
      *
@@ -118,6 +127,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         return $this;
     }
 
+
     /**
      * Build the and where part.
      *
@@ -131,6 +141,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
 
         return $this;
     }
+
 
     /**
      * Execute the query built.
@@ -147,6 +158,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         return $this->db->fetchAll();
     }
 
+
     /**
      * Create new row.
      *
@@ -160,16 +172,16 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         $values = array_values($values);
 
         $this->db->insert(
-           $this->getSource(),
-              $keys
+            $this->getSource(),
+            $keys
         );
 
         $res = $this->db->execute($values);
-
         $this->id = $this->db->lastInsertId();
 
         return $res;
     }
+
 
     /**
      * Update row.
@@ -194,7 +206,8 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         );
 
         return $this->db->execute($values);
-}
+    }
+
 
     /**
      * Get the table name.
@@ -207,6 +220,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         return strtolower(implode('', array_slice(explode('\\', get_class($this)), -1)));
     }
 
+
     /**
      * Get object properties.
      *
@@ -214,12 +228,13 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
      */
     public function getProperties()
     {
-       $properties = get_object_vars($this);
+        $properties = get_object_vars($this);
         unset($properties['di']);
         unset($properties['db']);
 
         return $properties;
     }
+
 
     /**
      * Set object properties.

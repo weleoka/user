@@ -7,6 +7,7 @@ namespace Weleoka\Users;
  */
 class UsersController implements \Anax\DI\IInjectionAware
 {
+
     use \Anax\DI\TInjectable;
 
 
@@ -52,7 +53,7 @@ class UsersController implements \Anax\DI\IInjectionAware
     public function getTime()
     {
 
-        return date('Y-m-d H:i:s');    
+        return date('Y-m-d H:i:s');
     }
 
 
@@ -109,9 +110,8 @@ class UsersController implements \Anax\DI\IInjectionAware
      *
      * @return form
      */
-    protected function getLoginForm() {
-       // $di = $this;
-
+    protected function getLoginForm()
+    {
         $form = $this->form->create([], [
             'acronym' => [
                 'type'        => 'text',
@@ -143,7 +143,7 @@ class UsersController implements \Anax\DI\IInjectionAware
 
                     } else {
                         $this->users->AddFeedback('Felaktigt användarnamn eller lösenord.');
-                        
+
                         return false;
                     }
                 }
@@ -158,7 +158,8 @@ class UsersController implements \Anax\DI\IInjectionAware
      * logout Action.
      *
      */
-    public function logoutAction($destination = null) {
+    public function logoutAction($destination = null)
+    {
         session_unset();
         $url = $this->url->create('');
 
@@ -354,7 +355,7 @@ class UsersController implements \Anax\DI\IInjectionAware
                     'required'    => true,
                     'placeholder' => 'Lösenord',
                     'validation'  => ['not_empty'],
-                    ],            
+                    ],
             'name' => [
                 'type'        => 'text',
                 'label'       => 'Name:',
@@ -484,6 +485,7 @@ class UsersController implements \Anax\DI\IInjectionAware
      */
     public function changeStatusAction($id = null)
     {
+
         if (!isset($id)) {
 
             die("Missing id");
@@ -498,6 +500,7 @@ class UsersController implements \Anax\DI\IInjectionAware
             $user->save();
             $this->users->AddFeedback($user->acronym . ' är nu aktiverad.');
             $this->listAction();
+
         } else {
             $user->active = null;
             $user->save();
@@ -598,11 +601,11 @@ class UsersController implements \Anax\DI\IInjectionAware
                          <p><i class="fa fa-square-o"></i><a href="' . $url . '/users/inactive"> Inaktiva användare</a></p>
                          <p><i class="fa fa-trash-o"></i><a href="' . $url . '/users/deleted"> Papperskorgen</a></p>
                          <p><i class="fa fa-list-ol"></i><a href="' . $url . '/users/list"> Alla</a></p>';
-            
+
             return $sidebar;
         }
-    
+
         return '<i class="fa fa-square-o"></i><a href="' . $url . '/users/login"> Logga in</a> Admin<br>för att hantera användare.';
-    
+
     }
 }
