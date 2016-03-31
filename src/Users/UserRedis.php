@@ -163,6 +163,63 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
     }
 
 
+
+    /**
+     * Constructor
+     *
+     */
+    public function __construct()
+    {
+        $signup = [
+                "pwd" => [
+                    "type" =>"text",
+                    "label" => "Password",
+                ],
+
+                "pwdAgain" => [
+                    "type" => "text",
+                    "label" => "Password again",
+                    "validation" => [
+                        "match" => "pwd"
+                    ],
+                ],
+
+                "submit" => [
+                    "type" => "submit",
+                    "value" => "Create user",
+                    "callback" => [$this, "validatePwdMatch"]
+                ],
+        ];
+        
+        $form = new MOS\CForm($signup)
+
+        );
+    }
+
+
+
+    /**
+     * Callback for submit-button.
+     *
+     */
+    public function validatePwdMatch()
+    {
+        $matches = $this->value("pwd") === $this->value("pwdAgain")
+            ? "YES"
+            : "NO";
+
+        $this->AddOutput("<p>#callbackSubmit()</p>");
+        $this->AddOutput("<p>Passwords matches: $matches</p>");
+        $this->saveInSession = true;
+
+        return true;
+    }
+}
+
+
+
+
+
     /**
      * Check if user is logged in.
      *
