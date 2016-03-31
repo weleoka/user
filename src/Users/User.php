@@ -35,12 +35,8 @@ class User extends \Weleoka\Users\UsersdbModel {
      */
     public function findByName( $acronym )
     {
-        // echo "searching user: '" . $acronym . "'....";
-        $this->db->select()
-                 ->from($this->getSource())
-                 ->where('acronym = ?');
-        $this->db->execute([$acronym]);
-        $user = $this->db->fetchInto($this);
+        echo "searching user: '" . $acronym . "'....";
+
 
         return $user;
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Weleoka\Users;
 
 /**
@@ -24,6 +25,7 @@ class UsersdbModel implements \Anax\DI\IInjectionAware
         $values = $this->getProperties();
 
         if (isset($values['id'])) {
+            
             return $this->update($values);
 
         } else {
