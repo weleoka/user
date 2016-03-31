@@ -15,7 +15,9 @@ class CSignup extends \Mos\HTMLForm\CFormModel
     public function __construct()
     {
         parent::__construct(
-            [],
+            [
+                "id" => __CLASS__,
+            ],
             [
                 "pwd" => [
                     "type" =>"text",
@@ -50,9 +52,9 @@ class CSignup extends \Mos\HTMLForm\CFormModel
         $matches = $this->value("pwd") === $this->value("pwdAgain")
             ? "YES"
             : "NO";
-
-        $this->AddOutput("<p>#callbackSubmit()</p>");
-        $this->AddOutput("<p>Passwords matches: $matches</p>");
+        echo "CALLBACK CALLBACK CALLBACK.";
+        $this->addOutput("<p>#callbackSubmit()</p>");
+        $this->addOutput("<p>Passwords matches: $matches</p>");
         $this->saveInSession = true;
 
         return true;

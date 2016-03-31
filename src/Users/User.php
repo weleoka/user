@@ -2,6 +2,7 @@
 
 namespace Weleoka\Users;
 
+
 /**
  * Model for Users.
  *

@@ -6,8 +6,7 @@ namespace Weleoka\Users;
  * Model for redis database of user.
  *
  */
-class UsersdbModel 
-{
+class UsersdbModelRedis {
 
 
     /**

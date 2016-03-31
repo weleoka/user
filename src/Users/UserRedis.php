@@ -2,6 +2,7 @@
 
 namespace Weleoka\Users;
 
+
 /**
  * Class for users mapping to a redis database.
  *
@@ -14,17 +15,19 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
      */
     public function __construct ()
     {
-        $this->redis = new Predis\Client(array(
-            "scheme" => "tcp",
-            "host" => "127.0.0.1",
-            "port" => 6379,
-            "password" => "",
-            "database" => 10,
+        $this->redis = new \Predis\Client(array(
+            "scheme"    => "tcp",
+            "host"      => "127.0.0.1",
+            "port"      => 6379,
+            "password"  => "",
+            "database"  => 10,
             "persistent" => "0"
         ));
 
         // Initial database set-up
-        !$this->redis->exists('usercount') ? $this->redis->set("usercount", 0) : $res .= " (usercount: " . $this->redis->get("usercount") . ").";
+        if (!$this->redis->exists('usercount')) {
+            $this->redis->set("usercount", 0);
+        }
     }
 
 
@@ -66,7 +69,7 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
      */
     public function findIDByUsername($username)
     {
-        $userlist = $this->redis->hKeys('userlist')
+        $userlist = $this->redis->hKeys('userlist');
 
         if (in_array($username, $userlist, True)) {
             // Note: If the search parameter is a string and the type parameter is set to TRUE, the search is case-sensitive. in_array(search,array,type)
@@ -105,7 +108,7 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
         );
         // Step 1: Check username is not taken.
-        if !($this->findIDByUsername($username)) {
+        if (!$this->findIDByUsername($username)) {
             // Step 2: Register the new username and corresponding ID in userlist.
             $res = $this->redis->hmset("userlist", [
                 $username => $newUserID,
@@ -161,63 +164,6 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
             return false;
         }
     }
-
-
-
-    /**
-     * Constructor
-     *
-     */
-    public function __construct()
-    {
-        $signup = [
-                "pwd" => [
-                    "type" =>"text",
-                    "label" => "Password",
-                ],
-
-                "pwdAgain" => [
-                    "type" => "text",
-                    "label" => "Password again",
-                    "validation" => [
-                        "match" => "pwd"
-                    ],
-                ],
-
-                "submit" => [
-                    "type" => "submit",
-                    "value" => "Create user",
-                    "callback" => [$this, "validatePwdMatch"]
-                ],
-        ];
-        
-        $form = new MOS\CForm($signup)
-
-        );
-    }
-
-
-
-    /**
-     * Callback for submit-button.
-     *
-     */
-    public function validatePwdMatch()
-    {
-        $matches = $this->value("pwd") === $this->value("pwdAgain")
-            ? "YES"
-            : "NO";
-
-        $this->AddOutput("<p>#callbackSubmit()</p>");
-        $this->AddOutput("<p>Passwords matches: $matches</p>");
-        $this->saveInSession = true;
-
-        return true;
-    }
-}
-
-
-
 
 
     /**
