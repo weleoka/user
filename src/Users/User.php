@@ -1,4 +1,5 @@
 <?php
+
 namespace Weleoka\Users;
 
 /**
@@ -35,19 +36,23 @@ class User extends \Weleoka\Users\UsersdbModel {
      */
     public function findByName( $acronym )
     {
-        echo "searching user: '" . $acronym . "'....";
-
+        // echo "searching user: '" . $acronym . "'....";
+        $this->db->select()
+                 ->from($this->getSource())
+                 ->where('acronym = ?');
+        $this->db->execute([$acronym]);
+        $user = $this->db->fetchInto($this);
 
         return $user;
     }
 
 
-    /*
+    /**
      * Login user if password correct.
      *
      * @param string $acronym, string $password.
      *
-     * @return boolean
+     * @return bool
      */
     public function loginUser ($acronym, $password)
     {
@@ -62,7 +67,7 @@ class User extends \Weleoka\Users\UsersdbModel {
                 'contributionCount' => $currentUser->contributionCount,
             ]);
 
-        return true;
+            return true;
 
         } else {
             session_unset();
@@ -72,9 +77,10 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-    /*
+    /**
      * Check if user is logged in.
      *
+     * @return bool
      */
     public function isAuthenticated()
     {
@@ -90,10 +96,10 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-    /*
+    /**
      * Check if user is admin.
      *
-     * @return acronym
+     * @return bool
      */
     public function isAdmin()
     {
@@ -111,10 +117,10 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-    /*
+    /**
      * Check if user is logged in and return string acronym.
      *
-     * @return acronym
+     * @return string $acronym
      */
     public function whoIsAuthenticated()
     {
@@ -126,7 +132,8 @@ class User extends \Weleoka\Users\UsersdbModel {
 
 
 /************************************** FIND FORUM CONTENT BY USER ************************************/
-    /*
+    
+    /**
      * List any forum questions of user.
      *
      * @return array
@@ -136,7 +143,7 @@ class User extends \Weleoka\Users\UsersdbModel {
         $this->db->select()
                  ->from('question')
                  ->where('userID = ?');
-          $this->db->execute($this->db->getSQL(), [$id]);
+        $this->db->execute($this->db->getSQL(), [$id]);
         $this->db->setFetchModeClass(__CLASS__);
         $userQuestions = $this->db->fetchAll();
 
@@ -144,7 +151,7 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-    /*
+    /**
      * List any forum answers of user.
      *
      * @return array
@@ -164,7 +171,8 @@ class User extends \Weleoka\Users\UsersdbModel {
 
 
 /************************************** TTL TIMEOUT FUNCTIONS *****************************************/
-    /*
+    
+    /**
      * Restart session TTL timeout.
      * Default TTL is 600 seconds.
      *
@@ -177,10 +185,10 @@ class User extends \Weleoka\Users\UsersdbModel {
     }
 
 
-    /*
+    /**
      * Set session timeout to $_SESSION, check status of TTL.
      *
-     * @return acronym
+     * @return void
      */
     public function sessionTimeout()
     {
