@@ -50,6 +50,11 @@ class UsersController implements \Anax\DI\IInjectionAware
     }
 
 
+    /**
+     * Get a timestamp
+     *
+     * @return string timestamp.
+     */
     public function getTime()
     {
 

@@ -2,11 +2,41 @@
 
 namespace Weleoka\Users;
 
+
 /**
  * Model for redis database of user.
  *
  */
 class UsersdbModelRedis {
+
+
+
+    /**
+     * Get keys from db.
+     *
+     * @param array $values keys to look for. * for all.
+     *
+     * @return array query result
+     */
+    public function keys($values = [])
+    {
+
+        return $this->redis->keys($values);
+    }
+
+
+    /**
+     * Hash get all key/value pairs.
+     *
+     * @param string $key The key/name of the hash.
+     *
+     * @return array query result.
+     */
+    public function hgetall($key)
+    {
+
+        return $this->redis->hgetall($key);
+    }
 
 
     /**
@@ -126,5 +156,17 @@ class UsersdbModelRedis {
                 $this->$key = $val;
             }
         }
+    }
+
+
+    /**
+     * Get a timestamp
+     *
+     * @return string timestamp.
+     */
+    public function getTime()
+    {
+
+        return date('Y-m-d H:i:s');
     }
 }

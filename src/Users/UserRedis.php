@@ -1,7 +1,7 @@
 <?php
 
 namespace Weleoka\Users;
-
+// How does extends work in php... does it call constructors?
 
 /**
  * Class for users mapping to a redis database.
@@ -38,7 +38,7 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
      */
     public function getUsercount()
     {
-        return $this->redis->getUsercount("usercount");
+        return $this->redis->get('usercount');
     }
 
 
@@ -57,6 +57,22 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
         } else {
             $_SESSION['user-feedback'] = null;
         }
+    }
+
+
+    /**
+     * Get output to display to the user what happened.
+     *
+     * @param void
+     *
+     * @return string
+     */
+    public function getFeedback()
+    {
+        
+        return isset($_SESSION['user-feedback']) 
+            ? $_SESSION['user-feedback'] 
+            : " ";
     }
 
 
@@ -90,23 +106,34 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
      *
      * @return bool
      */
-    public function signup ()
+    public function signup ($formFields)
     {
-        $username = $_POST['username'];
-        $fullname = $_POST['username'];
-        $email = $_POST['username'];
-        $password = $_POST['password'];
-        $profile = $_POST['username'];
+        //'username'  => $this->value('username'),
+        //'fullname'  => $this->value('fullname'),
+        //'profile'   => $this->value('profile'),
+        //'email'     => $this->value('email'),
+        //'password'  => $this->value('password'),
+        $extraInfo = [
+            'created'   => $this->getTime(),
+            'active'    => $this->getTime(),
+            'firstIp'   => '$this->getClientAddress()',
+            'latestIp'  => '$this->getClientAddress()',
+        ];
+        $newUserData = array_merge($extraInfo, $formFields);
 
         $newUserID = $this->getUsercount();
         $key_user = "userID:" . $newUserID;
 
+        $username = $newUserData['username'];
+        $password = $newUserData['password'];
+
         // Hash and salt the new password.
-        $hash_str = \Sodium\crypto_pwhash_scryptsalsa208sha256_str(
+        $newUserData['password'] = \Sodium\crypto_pwhash_scryptsalsa208sha256_str(
             $password,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
         );
+
         // Step 1: Check username is not taken.
         if (!$this->findIDByUsername($username)) {
             // Step 2: Register the new username and corresponding ID in userlist.
@@ -114,13 +141,7 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
                 $username => $newUserID,
             ]);
             // Step 3: Create the new hash for the user.
-            $res = $this->redis->hmset($key_user, [
-                'username' => $username,
-                'fullName' => $fullname,
-                'email' => $email,
-                'password' => $hash_str,
-                'profile' => $profile,
-            ]);
+            $res = $this->redis->hmset($key_user, $newUserData);
             // Step 4: Increment the usercount.
             $this->redis->incr("usercount");
         }
