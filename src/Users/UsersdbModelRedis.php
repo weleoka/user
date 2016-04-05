@@ -40,6 +40,20 @@ class UsersdbModelRedis {
 
 
     /**
+     * Hash get one entry with key/value pairs.
+     *
+     * @param string $key The key/name of the hash.
+     *
+     * @return array query result.
+     */
+    public function hget($hash, $key)
+    {
+
+        return $this->redis->hget($hash, $key);
+    }
+
+
+    /**
      * Save current object/row.
      *
      * @param array $values key/values to save or empty to use object properties.

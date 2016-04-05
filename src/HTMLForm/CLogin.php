@@ -17,22 +17,17 @@ class CLogin extends \Mos\HTMLForm\CFormModel
         parent::__construct(
             [],
             [
-                "pwd" => [
+                "username" => [
                     "type" =>"text",
+                    "label" => "Username",
+                ],
+                "password" => [
+                    "type" =>"password",
                     "label" => "Password",
                 ],
-
-                "pwdAgain" => [
-                    "type" => "text",
-                    "label" => "Password again",
-                    "validation" => [
-                        "match" => "pwd"
-                    ],
-                ],
-
                 "submit" => [
                     "type" => "submit",
-                    "value" => "Create user",
+                    "value" => "Log in",
                     "callback" => [$this, "callbackSubmit"]
                 ],
             ]
@@ -40,21 +35,48 @@ class CLogin extends \Mos\HTMLForm\CFormModel
     }
 
 
-
     /**
      * Callback for submit-button.
      *
+     * @return bool
      */
     public function callbackSubmit()
     {
-        $matches = $this->value("pwd") === $this->value("pwdAgain")
-            ? "YES"
-            : "NO";
+        $user = new \Weleoka\Users\UserRedis();
+        $result = null;
+        
+        if ($user->login([
+            'username'  => $this->value('username'),
+            'password'  => $this->value('password'),
+        ])) {
 
-        $this->AddOutput("<p>#callbackSubmit()</p>");
-        $this->AddOutput("<p>Passwords matches: $matches</p>");
-        $this->saveInSession = true;
+            return true;
+        } 
+        
+        return false; 
+    }
 
-        return true;
+
+    /**
+     * Callback What to do if the form was submitted successfully?
+     *
+     */
+    public function callbackSuccess()
+    {
+        $this->addOutput("<p>LOGGED IN!</p>");
+        $this->addOutput("<p>You have logged in successfully.</p>");
+        header("Location: " . $_SERVER['PHP_SELF']);
+    }
+
+
+    /**
+     * Callback What to do when submitted form could not be processed?
+     *
+     */
+    public function callbackFail()
+    {
+        $this->addOutput("<p>LOGIN FAILED.</p>");
+        $this->addOutput("<p>Invalid username or password.</p>");
+        header("Location: " . $_SERVER['PHP_SELF']);
     }
 }
