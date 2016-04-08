@@ -177,10 +177,10 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
     public function login($credentials)
     {
         $currentUserID = $this->findIDByUsername($credentials['username']);
-
+        
         if ($currentUserID) {
             $key_user = $this->usersprefix . $currentUserID; //$this->redis->hget("userlist", $username);
-            echo $key_user;
+            
             $hash_str = $this->redis->hget($key_user, 'password');
 
             if (\Sodium\crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $credentials['password'])) {
@@ -197,7 +197,7 @@ class UserRedis extends \Weleoka\Users\UsersdbModelRedis {
 
             } else {
                 \Sodium\memzero($credentials['password']);
-                $this->addFeedback("FAILED LOG IN.");
+                $this->addFeedback("FAILED LOG IN for " . $key_user);
 
                 return false;
             }
